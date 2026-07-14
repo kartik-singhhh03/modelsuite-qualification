@@ -29,7 +29,7 @@ const getAllTasks = async (req, res) => {
 
 // @desc  Get single task
 // @route GET /api/tasks/:id
-// @access Admin
+// @access Admin / Talent (Open or assigned)
 const getTaskById = async (req, res) => {
   try {
     // — will throw a CastError from Mongoose instead of a clean 400
@@ -38,6 +38,15 @@ const getTaskById = async (req, res) => {
       .populate('createdBy', 'name');
 
     if (!task) return res.status(404).json({ message: 'Task not found' });
+
+    if (req.user.role !== 'Admin') {
+      const isOpen = task.status === 'Open';
+      const assignedToId = task.assignedTo?._id ?? task.assignedTo;
+      const isAssigned = assignedToId && assignedToId.toString() === req.user._id.toString();
+      if (!isOpen && !isAssigned) {
+        return res.status(403).json({ message: 'Access denied' });
+      }
+    }
 
     res.json(task);
   } catch (error) {
