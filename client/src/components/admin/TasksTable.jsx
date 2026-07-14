@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { deleteTask } from '../../api/tasks';
+import ConfirmDialog from '../ConfirmDialog';
 
 /* ── SVG Action Icons ── */
 const IconEdit = () => (
@@ -42,10 +44,12 @@ const STATUS_CLASS = {
 };
 
 const TasksTable = ({ tasks, onEdit, onRefresh }) => {
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const handleDelete = async (id) => {
     try {
       await deleteTask(id);
+      setDeleteTarget(null);
       onRefresh();
     } catch {
       alert('Failed to delete task');
@@ -145,7 +149,7 @@ const TasksTable = ({ tasks, onEdit, onRefresh }) => {
                     <IconEdit />
                   </button>
                   <button
-                    onClick={() => handleDelete(task._id)}
+                    onClick={() => setDeleteTarget(task)}
                     title="Delete task"
                     className="action-btn action-btn-delete">
                     <IconDelete />
@@ -156,6 +160,16 @@ const TasksTable = ({ tasks, onEdit, onRefresh }) => {
           ))}
         </tbody>
       </table>
+
+      {deleteTarget && (
+        <ConfirmDialog
+          title="Delete task?"
+          message={`Are you sure you want to delete "${deleteTarget.title || 'this task'}"? This action cannot be undone.`}
+          confirmLabel="Delete"
+          onCancel={() => setDeleteTarget(null)}
+          onConfirm={() => handleDelete(deleteTarget._id)}
+        />
+      )}
     </div>
   );
 };
