@@ -1,6 +1,6 @@
-﻿import { useState } from 'react';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+﻿import { useEffect, useState } from 'react';
+import ReactQuill from 'react-quill-new';
+import 'quill/dist/quill.snow.css';
 import { updateTask, fetchTalents } from '../../api/tasks';
 
 const STATUS_OPTIONS = ['Open', 'Claimed', 'Submitted', 'Approved', 'Rejected'];
@@ -17,7 +17,7 @@ const EditTaskModal = ({ task, onClose, onUpdated }) => {
   });
   const [talents, setTalents] = useState([]);
 
-  useState(() => {
+  useEffect(() => {
     fetchTalents().then(({ data }) => setTalents(data)).catch(() => {});
   }, []);
 

@@ -1,6 +1,6 @@
-﻿import { useState } from 'react';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+﻿import { useEffect, useState } from 'react';
+import ReactQuill from 'react-quill-new';
+import 'quill/dist/quill.snow.css';
 import { createTask, fetchTalents } from '../../api/tasks';
 
 const STATUS_OPTIONS = ['Open', 'Claimed', 'Submitted', 'Approved', 'Rejected'];
@@ -11,9 +11,8 @@ const labelCls  = 'text-[11px] font-semibold uppercase tracking-[0.5px] text-tex
 const CreateTaskModal = ({ onClose, onCreated }) => {
   const [form, setForm] = useState({ title: '', description: '', status: 'Open', assignedTo: '', dueDate: '' });
   const [talents, setTalents] = useState([]);
-  const [loadingTalents, setLoadingTalents] = useState(false);
-  useState(() => {
-    setLoadingTalents(true);
+  const [loadingTalents, setLoadingTalents] = useState(true);
+  useEffect(() => {
     fetchTalents()
       .then(({ data }) => setTalents(data))
       .catch(() => alert('Failed to load talents'))
