@@ -1,4 +1,6 @@
 ﻿import { useState } from 'react';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 import { updateTask, fetchTalents } from '../../api/tasks';
 
 const STATUS_OPTIONS = ['Open', 'Claimed', 'Submitted', 'Approved', 'Rejected'];
@@ -52,7 +54,11 @@ const EditTaskModal = ({ task, onClose, onUpdated }) => {
 
           <div className="flex flex-col gap-1.5">
             <label className={labelCls}>Description</label>
-            <textarea name="description" value={form.description} onChange={handleChange} rows={3} className={inputCls} />
+            <ReactQuill
+              theme="snow"
+              value={form.description}
+              onChange={(value) => setForm((p) => ({ ...p, description: value }))}
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
