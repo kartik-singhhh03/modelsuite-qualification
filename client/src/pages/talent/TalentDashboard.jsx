@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import TalentSidebar from '../../components/talent/TalentSidebar';
 import AvailableTasksList from '../../components/talent/AvailableTasksList';
 import MyTasksList from '../../components/talent/MyTasksList';
@@ -9,6 +10,8 @@ import { useAuth } from '../../context/AuthContext';
 
 const TalentDashboard = () => {
   const { user } = useAuth();
+  const location = useLocation();
+  const isMyTasksView = location.pathname === '/talent/tasks';
   const [availableTasks, setAvailableTasks] = useState([]);
   const [myTasks, setMyTasks]               = useState([]);
   const [error, setError] = useState(null);
@@ -37,10 +40,12 @@ const TalentDashboard = () => {
         <div className="mb-7 page-section">
           <h1 className="text-[22px] font-semibold tracking-tight"
             style={{ color: '#F0F0F0', fontFamily: 'Poppins, sans-serif' }}>
-            Welcome back, {user?.name?.split(' ')[0]}
+            {isMyTasksView ? 'My Tasks' : `Welcome back, ${user?.name?.split(' ')[0]}`}
           </h1>
           <p className="mt-0.5 text-[13px]" style={{ color: '#6B7280' }}>
-            Browse available tasks below and claim one to get started.
+            {isMyTasksView
+              ? 'View and submit your claimed and assigned tasks.'
+              : 'Browse available tasks below and claim one to get started.'}
           </p>
         </div>
 
@@ -51,7 +56,7 @@ const TalentDashboard = () => {
           </p>
         )}
 
-        {/* Available Tasks */}
+        {!isMyTasksView && (
         <section className="mb-7 page-section">
           <div className="flex items-center gap-2.5 mb-4">
             <h2 className="text-[11px] font-semibold uppercase tracking-[0.1em]"
@@ -69,6 +74,7 @@ const TalentDashboard = () => {
           </div>
           <AvailableTasksList tasks={availableTasks} onClaimed={handleRefresh} />
         </section>
+        )}
 
         {/* My Tasks */}
         <section className="mb-7 page-section">
