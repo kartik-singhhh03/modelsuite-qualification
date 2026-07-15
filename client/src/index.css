@@ -425,6 +425,38 @@ input, select, textarea {
   font-family: 'Inter', sans-serif;
 }
 
+/* Native select dropdown list uses light background — ensure readable options */
+select option {
+  color: #111827;
+  background-color: #ffffff;
+}
+
+/* Rich text editor — dark theme in task modals */
+.task-quill-editor .ql-toolbar.ql-snow {
+  border-color: rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px 8px 0 0;
+}
+.task-quill-editor .ql-container.ql-snow {
+  border-color: rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 0 0 8px 8px;
+  color: #F0F0F0;
+  min-height: 120px;
+}
+.task-quill-editor .ql-editor.ql-blank::before {
+  color: #6B7280;
+}
+.task-quill-editor .ql-snow .ql-stroke {
+  stroke: #9CA3AF;
+}
+.task-quill-editor .ql-snow .ql-fill {
+  fill: #9CA3AF;
+}
+.task-quill-editor .ql-snow .ql-picker-label {
+  color: #F0F0F0;
+}
+
 /* Custom select chevron */
 .custom-select {
   appearance: none;

@@ -8,10 +8,13 @@ const STATUS_OPTIONS = ['Open', 'Claimed', 'Submitted', 'Approved', 'Rejected'];
 const inputCls  = 'w-full bg-bg-input border border-border rounded-lg px-3.5 py-2.5 text-sm text-text-primary outline-none placeholder:text-[#4e4a6e] focus:border-primary focus:ring-[3px] focus:ring-primary/15 transition-all font-sans resize-y';
 const labelCls  = 'text-[11px] font-semibold uppercase tracking-[0.5px] text-text-muted';
 
+const todayStr = () => new Date().toISOString().split('T')[0];
+
 const CreateTaskModal = ({ onClose, onCreated }) => {
   const [form, setForm] = useState({ title: '', description: '', status: 'Open', assignedTo: '', dueDate: '' });
   const [talents, setTalents] = useState([]);
   const [loadingTalents, setLoadingTalents] = useState(true);
+  const [error, setError] = useState('');
   useEffect(() => {
     fetchTalents()
       .then(({ data }) => setTalents(data))
@@ -19,16 +22,37 @@ const CreateTaskModal = ({ onClose, onCreated }) => {
       .finally(() => setLoadingTalents(false));
   }, []);
 
-  const handleChange = (e) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
+  const handleChange = (e) => {
+    setError('');
+    setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+
+    if (!form.title.trim()) {
+      setError('Title is required');
+      return;
+    }
+
+    if (form.dueDate) {
+      const due = new Date(form.dueDate);
+      due.setHours(0, 0, 0, 0);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (due < today) {
+        setError('Due date cannot be in the past');
+        return;
+      }
+    }
+
     try {
       const { data } = await createTask({ ...form, assignedTo: form.assignedTo || undefined });
       onCreated(data);
       onClose();
     } catch (err) {
-      alert(err.response?.data?.message || 'Failed to create task');
+      setError(err.response?.data?.message || 'Failed to create task');
     }
   };
 
@@ -47,6 +71,12 @@ const CreateTaskModal = ({ onClose, onCreated }) => {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-[18px]">
+          {error && (
+            <div className="px-3.5 py-2.5 rounded-lg bg-danger/10 border border-danger/30 text-danger text-sm">
+              {error}
+            </div>
+          )}
+
           <div className="flex flex-col gap-1.5">
             <label className={labelCls}>Title</label>
             
@@ -56,12 +86,14 @@ const CreateTaskModal = ({ onClose, onCreated }) => {
 
           <div className="flex flex-col gap-1.5">
             <label className={labelCls}>Description</label>
-            <ReactQuill
-              theme="snow"
-              value={form.description}
-              onChange={(value) => setForm((p) => ({ ...p, description: value }))}
-              placeholder="Describe the task deliverables..."
-            />
+            <div className="task-quill-editor">
+              <ReactQuill
+                theme="snow"
+                value={form.description}
+                onChange={(value) => { setError(''); setForm((p) => ({ ...p, description: value })); }}
+                placeholder="Describe the task deliverables..."
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -75,7 +107,7 @@ const CreateTaskModal = ({ onClose, onCreated }) => {
             <div className="flex flex-col gap-1.5">
               <label className={labelCls}>Due Date</label>
               
-              <input type="date" name="dueDate" value={form.dueDate} onChange={handleChange} className={inputCls} />
+              <input type="date" name="dueDate" value={form.dueDate} min={todayStr()} onChange={handleChange} className={inputCls} />
             </div>
           </div>
 
